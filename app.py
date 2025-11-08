@@ -42,6 +42,17 @@ def merge_frames(left_df: pd.DataFrame, right_df: pd.DataFrame, left_key: str, r
     return merged
 
 
+def order_columns(base_cols: list[str], new_cols: list[str], insert_after: str) -> list[str]:
+    """Return column ordering where new columns are inserted after the chosen base column."""
+    if insert_after == "(At beginning)":
+        idx = 0
+    elif insert_after == "(At end)":
+        idx = len(base_cols)
+    else:
+        idx = base_cols.index(insert_after) + 1
+    return base_cols[:idx] + new_cols + base_cols[idx:]
+
+
 def main() -> None:
     st.set_page_config(page_title="Lookup Automator", page_icon="🔍", layout="wide")
     st.title("Lookup Automator")
@@ -78,9 +89,22 @@ def main() -> None:
         help="Select one or more columns to append to the base file.",
     )
 
+    insert_after_options = ["(At beginning)"] + list(df_a.columns) + ["(At end)"]
+    insert_after = st.selectbox(
+        "Insert fetched columns after",
+        options=insert_after_options,
+        index=len(insert_after_options) - 1,
+        help="Choose where the fetched columns should appear inside the base file.",
+    )
+
     if st.button("Run lookup", type="primary", disabled=not value_cols):
         try:
             merged = merge_frames(df_a, df_b, left_key, right_key, value_cols)
+            base_columns = list(df_a.columns)
+            new_columns = [col for col in merged.columns if col not in base_columns]
+            ordered_columns = order_columns(base_columns, new_columns, insert_after)
+            merged = merged[ordered_columns]
+
             st.success(f"Lookup completed. {merged.shape[0]} rows processed.")
             st.dataframe(merged, use_container_width=True)
 

@@ -16,5 +16,5 @@ streamlit run app.py
 1. Upload your **base file** (the sheet that should receive the lookup values).
 2. Upload the **lookup file** (contains the reference values you want to bring over).
 3. Select the primary key column from each file.
-4. Choose one or more columns from the lookup file to append to the base file.
+4. Choose one or more columns from the lookup file to append to the base file and specify where they should be inserted.
 5. Click **Run lookup** to preview the merged data and download it as CSV.
